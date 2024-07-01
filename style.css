@@ -1,0 +1,136 @@
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  list-style: none;
+  text-decoration: none;
+  outline: none;
+}
+
+:root {
+  --expense: rgb(255, 108, 108);
+  --balance: rgb(104, 187, 255);
+  --income: rgb(24, 255, 24);
+}
+
+body {
+  color: rgb(38, 38, 38);
+  background: rgb(0, 0, 0);
+  font-family: sans-serif;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  height: 100vh;
+  width: 600px;
+  background: white;
+  padding: 1rem;
+  text-align: center;
+}
+
+.header {
+  margin-bottom: 1rem;
+  font-weight: 100;
+  font-size: 3rem;
+}
+
+.report {
+  display: flex;
+  gap: 1rem;
+}
+
+.report > div {
+  flex: 1;
+  padding: 1rem;
+}
+
+.balance-header {
+  font-size: 1.5rem;
+}
+
+.balance-report {
+  border: solid 4px var(--balance);
+}
+
+.income-report {
+  border: solid 4px var(--income);
+}
+
+.expense-report {
+  border: solid 4px var(--expense);
+}
+
+.adding {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  margin-top: 1rem;
+  background-color: rgb(241, 240, 240);
+  gap: 0.5rem;
+}
+
+.adding input,
+select {
+  padding: 0.5rem 1rem;
+}
+
+.adding button {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border-radius: 2rem;
+  font-weight: bold;
+  border: 0;
+  background-color: rgb(53, 86, 118);
+  color: white;
+  cursor: pointer;
+}
+
+.all-transaction {
+  margin-top: 1rem;
+  flex: 1;
+  gap: 0.3rem;
+  background-color: rgb(241, 240, 240);
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+}
+
+.transaction {
+  display: flex;
+  align-items: center;
+  border: solid 1px rgb(179, 178, 178);
+  background-color: white;
+}
+
+.detail {
+  flex: 1;
+  padding: 0.8rem;
+  text-align: left;
+}
+
+.amount {
+  width: 7rem;
+  padding: 0.8rem;
+}
+
+.action i {
+  cursor: pointer;
+  font-size: 1.4rem;
+}
+
+.action {
+  width: 3rem;
+  padding: 0.8rem;
+}
+
+.expense-b {
+  border-left: solid 8px var(--expense);
+}
+
+.income-b {
+  border-left: solid 8px var(--income);
+}

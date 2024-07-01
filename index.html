@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Save money</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="main.js" defer></script>
+  </head>
+  <body>
+    <div class="app">
+        <h1 class='header'>Save Money </h1>
+        <div class='report'>
+            <div class='balance-report'>
+                <div class='balance-header' id='balanceTotal'>R100</div>
+                <div>Balance</div>
+            </div>
+            <div class='income-report'>
+                <div class='balance-header' id='incomeTotal'>R100</div>
+                <div>Income</div>
+            </div>
+            <div class='expense-report'>
+                <div class='balance-header' id='expenseTotal'>R100</div>
+                <div>Expense</div>
+            </div>
+        </div>
+
+        <div class="adding">
+            <input type="text" id='txtDetail' placeholder='Detail of transaction'>
+            <input type="number" id='txtAmount' placeholder='Amount'>
+            <select id='txtType'>
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+            </select>
+            <button onclick='add_dataFn()'>ADD TRANSACTION</button>
+        </div>
+
+        <div class="all-transaction" id='allTransaction'>
+
+            <div class="transaction income-b ">
+                <div class="detail">Salary</div>
+                <div class="amount">R100</div>
+                <div class="action">
+                    <i class="bi bi-trash"></i>
+                </div>
+            </div>
+
+            <div class="transaction expense-b ">
+                <div class="detail">Rent</div>
+                <div class="amount">R100</div>
+                <div class="action">
+                    <i class="bi bi-trash"></i>
+                </div>
+            </div>
+
+            <div class="transaction income-b ">
+                <div class="detail">Salary</div>
+                <div class="amount">R100</div>
+                <div class="action">
+                    <i class="bi bi-trash"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
