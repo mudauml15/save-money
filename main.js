@@ -13,3 +13,14 @@ function addTransaction() {
     return;
 
 }
+let transaction = { detail, amount, type };
+transactions.push(transaction);
+updateInput();
+
+document.getElementById('txtDetail').value = '';
+document.getElementById('txtAmount').value = 0;
+
+localStorage.setItem('transactions', JSON.stringify(transactions));
+
+}
+
