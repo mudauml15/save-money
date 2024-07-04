@@ -11,5 +11,5 @@ function addTransaction() {
   if (detail === '' || isNaN(amount) || amount <= 0) {
     alert('Please enter valid details and amount.');
     return;
-  }
-  
+
+}
