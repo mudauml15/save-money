@@ -8,19 +8,24 @@ function addTransaction() {
   let amount = parseFloat(document.getElementById('txtAmount').value);
   let type = document.getElementById('txtType').value;
 
-  // Check if amount is NaN or less than or equal to 0
+  // To check if details are empty or amount is NaN or less than or equal to 0
   if (detail === '' || isNaN(amount) || amount <= 0) {
     alert('Please enter valid details and amount.');
     return;
   }
+  // To check if the salary is aan income.
+  if (detail.toLowerCase() === 'salary' && type === 'expense') {
+    alert('Salary cannot be marked as an expense.');
+    return;
+  }
 
-  // Check if type is 'expense' and incomeTotal is 0
+  // To check if expense and incomeTotal is 0
   if (type === 'expense' && incomeTotal === 0) {
     alert('Please enter your income first.');
     return;
   }
 
-  // Check if type is 'expense' and the proposed expense exceeds the income
+  // To check if expense exceeds income
   if (type === 'expense' && amount > incomeTotal - expenseTotal) {
     let remainingIncome = incomeTotal - expenseTotal;
     let neededAmount = amount - remainingIncome;
@@ -28,22 +33,23 @@ function addTransaction() {
     return;
   }
 
+  // To find same input details on the existing transaction then update existing or update new if it doesn't exist.
   let existingTransaction = transactions.find(tran => tran.detail === detail && tran.type === type);
 
   if (existingTransaction) {
     existingTransaction.amount = (parseFloat(existingTransaction.amount) + amount).toFixed(2);
-    updateInput(); // Update Input after modifying existing transaction
+    updateInput(); 
   } else {
     let transaction = {
       detail: detail,
       amount: amount.toFixed(2),
       type: type
     };
-
+    // Update Input after adding new transaction
     transactions.push(transaction);
-    updateInput(); // Update Input after adding new transaction
+    updateInput(); 
   }
-
+  // Clear inputs and update to local starage
   document.getElementById('txtDetail').value = '';
   document.getElementById('txtAmount').value = '';
 
@@ -76,6 +82,33 @@ function updateInput() {
     document.getElementById('allTransaction').appendChild(transactionDiv);
   });
 
-  updateTotals(); // Update totals initially
+  updateTotals(); 
 }
 
+function updateTotals() {
+  incomeTotal = 0;
+  expenseTotal = 0;
+
+  transactions.forEach(transaction => {
+    if (transaction.type === 'income') {
+      incomeTotal += parseFloat(transaction.amount);
+    } else {
+      expenseTotal += parseFloat(transaction.amount);
+    }
+  });
+
+  document.getElementById('incomeTotal').textContent = `R${incomeTotal.toFixed(2)}`;
+  document.getElementById('expenseTotal').textContent = `R${expenseTotal.toFixed(2)}`;
+  balanceTotal = incomeTotal - expenseTotal;
+  document.getElementById('balanceTotal').textContent = `R${balanceTotal.toFixed(2)}`;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  let storedTransactions = localStorage.getItem('transactions');
+  if (storedTransactions) {
+    transactions = JSON.parse(storedTransactions);
+    updateInput();
+  }
+});
+
+document.querySelector('button').addEventListener('click', addTransaction);
