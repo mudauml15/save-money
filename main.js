@@ -8,24 +8,31 @@ function addTransaction() {
   let amount = parseFloat(document.getElementById('txtAmount').value);
   let type = document.getElementById('txtType').value;
 
-  // To check if details are empty or amount is NaN or less than or equal to 0
+  // Automatically correct detail to have the first letter uppercase and the rest lowercase
+  if (detail) {
+    detail = detail.charAt(0).toUpperCase() + detail.slice(1).toLowerCase();
+  }
+
+  // Check if amount is NaN or less than or equal to 0
   if (detail === '' || isNaN(amount) || amount <= 0) {
     alert('Please enter valid details and amount.');
     return;
   }
-  // To check if the salary is aan income.
+
+  // Check if detail is "Salary" and type is "expense"
   if (detail.toLowerCase() === 'salary' && type === 'expense') {
     alert('Salary cannot be marked as an expense.');
     return;
   }
 
-  // To check if expense and incomeTotal is 0
+  
+  // Check if type is 'expense' and incomeTotal is 0
   if (type === 'expense' && incomeTotal === 0) {
     alert('Please enter your income first.');
     return;
   }
 
-  // To check if expense exceeds income
+  // Check if type is 'expense' and the proposed expense exceeds the income
   if (type === 'expense' && amount > incomeTotal - expenseTotal) {
     let remainingIncome = incomeTotal - expenseTotal;
     let neededAmount = amount - remainingIncome;
@@ -33,23 +40,22 @@ function addTransaction() {
     return;
   }
 
-  // To find same input details on the existing transaction then update existing or update new if it doesn't exist.
   let existingTransaction = transactions.find(tran => tran.detail === detail && tran.type === type);
 
   if (existingTransaction) {
     existingTransaction.amount = (parseFloat(existingTransaction.amount) + amount).toFixed(2);
-    updateInput(); 
+    updateInput(); // Update Input after modifying existing transaction
   } else {
     let transaction = {
       detail: detail,
       amount: amount.toFixed(2),
       type: type
     };
-    // Update Input after adding new transaction
+
     transactions.push(transaction);
-    updateInput(); 
+    updateInput(); // Update Input after adding new transaction
   }
-  // Clear inputs and update to local starage
+
   document.getElementById('txtDetail').value = '';
   document.getElementById('txtAmount').value = '';
 
@@ -82,7 +88,7 @@ function updateInput() {
     document.getElementById('allTransaction').appendChild(transactionDiv);
   });
 
-  updateTotals(); 
+  updateTotals(); // Update totals initially
 }
 
 function updateTotals() {
