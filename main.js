@@ -25,7 +25,7 @@ function addTransaction() {
     return;
   }
 
-  
+
   // Check if type is 'expense' and incomeTotal is 0
   if (type === 'expense' && incomeTotal === 0) {
     alert('Please enter your income first.');
@@ -88,7 +88,7 @@ function updateInput() {
     document.getElementById('allTransaction').appendChild(transactionDiv);
   });
 
-  updateTotals(); // Update totals initially
+  updateTotals(); 
 }
 
 function updateTotals() {
