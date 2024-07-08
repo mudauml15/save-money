@@ -10,7 +10,7 @@ function addTransaction() {
 
   // Automatically correct detail to have the first letter uppercase and the rest lowercase
   if (detail) {
-    detail = detail.charAt(0).toUpperCase() + detail.slice(1).toLowerCase();
+    detail = `${detail[0].toUpperCase()}${detail.slice(1).toLowerCase()}`;
   }
 
   // Check if amount is NaN or less than or equal to 0
@@ -19,20 +19,20 @@ function addTransaction() {
     return;
   }
 
-  // Check if detail is "Salary" and type is "expense"
+  // Checking if user's details = Salary and type = expense.
   if (detail.toLowerCase() === 'salary' && type === 'expense') {
     alert('Salary cannot be marked as an expense.');
     return;
   }
 
 
-  // Check if type is 'expense' and incomeTotal is 0
+  // Checking if type is expense and incomeTotal is = 0.
   if (type === 'expense' && incomeTotal === 0) {
     alert('Please enter your income first.');
     return;
   }
 
-  // Check if type is 'expense' and the proposed expense exceeds the income
+  // Check if type is expense and if expense exceeds the income.
   if (type === 'expense' && amount > incomeTotal - expenseTotal) {
     let remainingIncome = incomeTotal - expenseTotal;
     let neededAmount = amount - remainingIncome;
@@ -40,11 +40,12 @@ function addTransaction() {
     return;
   }
 
+  // Compares to check if transaction & details are equal then combines two conditions.
   let existingTransaction = transactions.find(tran => tran.detail === detail && tran.type === type);
 
   if (existingTransaction) {
     existingTransaction.amount = (parseFloat(existingTransaction.amount) + amount).toFixed(2);
-    updateInput(); // Update Input after modifying existing transaction
+    updateInput(); 
   } else {
     let transaction = {
       detail: detail,
@@ -53,7 +54,7 @@ function addTransaction() {
     };
 
     transactions.push(transaction);
-    updateInput(); // Update Input after adding new transaction
+    updateInput(); 
   }
 
   document.getElementById('txtDetail').value = '';
@@ -62,12 +63,23 @@ function addTransaction() {
   localStorage.setItem('transactions', JSON.stringify(transactions));
 }
 
+
+
+
+
 function updateInput() {
   document.getElementById('allTransaction').innerHTML = '';
 
   transactions.forEach(transaction => {
     let transactionDiv = document.createElement('div');
-    transactionDiv.classList.add('transaction', transaction.type === 'expense' ? 'expense-b' : 'income-b');
+    transactionDiv.classList.add('transaction');
+
+    if (transaction.type === 'expense') {
+      transactionDiv.classList.add('expense-b');
+    } else {
+      transactionDiv.classList.add('income-b');
+    }
+
     transactionDiv.innerHTML = `
       <div class="detail">${transaction.detail}</div>
       <div class="amount">R${transaction.amount}</div>
@@ -79,9 +91,10 @@ function updateInput() {
       let index = transactions.indexOf(transaction);
       if (index !== -1) {
         transactions.splice(index, 1);
+
         localStorage.setItem('transactions', JSON.stringify(transactions));
-        updateInput(); // Update UI after deletion
-        updateTotals(); // Update totals after deletion
+        updateInput(); 
+        updateTotals(); 
       }
     };
 
@@ -90,6 +103,10 @@ function updateInput() {
 
   updateTotals(); 
 }
+
+
+
+
 
 function updateTotals() {
   incomeTotal = 0;
