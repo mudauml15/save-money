@@ -8,40 +8,41 @@ function addTransaction() {
   let amount = parseFloat(document.getElementById('txtAmount').value);
   let type = document.getElementById('txtType').value.toLowerCase();
 
-  if (detail) {
-    detail = `${detail[0].toUpperCase()}${detail.slice(1).toLowerCase()}`;
-  }
-
+ 
   if (detail === '') {
     alert('Details are required.');
     return;
   }
+
+  detail = `${detail[0].toUpperCase()}${detail.slice(1).toLowerCase()}`;
 
   if (isNaN(amount) || amount <= 0) {
     alert('Amount must be a valid number and greater than zero.');
     return;
   }
 
-  if (detail === 'salary' && type === 'expense') {
+
+  if (detail === 'Salary' && type === 'expense') {
     alert('Salary cannot be marked as an expense.');
     return;
   }
+
 
   if (type === 'expense' && incomeTotal === 0) {
     alert('Please enter your income before adding expenses.');
     return;
   }
 
+ 
   if (type === 'expense') {
     let remainingAmount = incomeTotal - expenseTotal;
-    let neededAmount = amount - remainingAmount;
-
     if (amount > remainingAmount) {
-      alert(`Insufficient funds. You have R${remainingAmount.toFixed(2)} left, you need an additional R${neededAmount.toFixed(2)} to add your expense.`);
+      alert(`Insufficient funds. You have R${remainingAmount.toFixed(2)} left. You need an additional R${(amount - remainingAmount).toFixed(2)} to add this expense.`);
       return;
     }
   }
 
+ 
   let existingTransaction = transactions.find(tran => tran.detail === detail && tran.type === type);
 
   if (existingTransaction) {
@@ -56,6 +57,7 @@ function addTransaction() {
   }
 
   updateAll();
+
   document.getElementById('txtDetail').value = '';
   document.getElementById('txtAmount').value = '';
   document.getElementById('txtType').value = 'income';
@@ -89,47 +91,56 @@ function editType(index) {
   document.getElementById(`editType-${index}`).focus();
 }
 
-
 function updateType(index, newType) {
   let oldType = transactions[index].type;
   let oldAmount = parseFloat(transactions[index].amount);
   let detail = transactions[index].detail;
 
+
   if (oldType === newType) {
-    return; 
+    return;
   }
 
-  if (oldType === 'income' && newType === 'expense') {
-    if (incomeTotal - oldAmount < expenseTotal + oldAmount) {
-      alert(`Insufficient funds to convert this transaction to expense. Current balance: R${balanceTotal.toFixed(2)}`);
-      return;
+
+  let existingTransactionIndex = transactions.findIndex(
+    (tran, idx) => idx !== index && tran.detail === detail && tran.type === newType
+  );
+
+  if (existingTransactionIndex !== -1) {
+   
+    transactions[existingTransactionIndex].amount = (
+      parseFloat(transactions[existingTransactionIndex].amount) + oldAmount
+    ).toFixed(2);
+
+    transactions.splice(index, 1);
+  } else {
+
+    if (oldType === 'income' && newType === 'expense') {
+      if (incomeTotal - oldAmount < expenseTotal + oldAmount) {
+        alert(`Insufficient funds to convert this transaction to expense. Current balance: R${balanceTotal.toFixed(2)}`);
+        return;
+      }
+
+      transactions[index].type = 'expense';
+      incomeTotal -= oldAmount;
+      expenseTotal += oldAmount;
+      balanceTotal = incomeTotal - expenseTotal;
+
+    } else if (oldType === 'expense' && newType === 'income') {
+      transactions[index].type = 'income';
+      incomeTotal += oldAmount;
+      expenseTotal -= oldAmount;
+      balanceTotal = incomeTotal - expenseTotal;
     }
 
-    transactions[index].type = 'expense';
-    incomeTotal -= oldAmount;
-    expenseTotal += oldAmount;
-    balanceTotal = incomeTotal - expenseTotal;
-
-  } else if (oldType === 'expense' && newType === 'income') {
-    transactions[index].type = 'income';
-    incomeTotal += oldAmount;
-    expenseTotal -= oldAmount;
-    balanceTotal = incomeTotal - expenseTotal;
-  }
-
-  let existingTransaction = transactions.find((tran, index) => index !== index && tran.detail === detail && tran.type === newType);
-
-  if (existingTransaction) {
-    existingTransaction.amount = (parseFloat(existingTransaction.amount) + oldAmount).toFixed(2);
-    transactions.splice(index, 1);
-  }
-
-  if (balanceTotal < 0) {
-    alert('Changing this transaction type would result in a negative balance. Operation cancelled.');
-    transactions[index].type = oldType;
-    balanceTotal = incomeTotal - expenseTotal;
-    updateAll();
-    return;
+  
+    if (balanceTotal < 0) {
+      alert('Operation cancelled: This transaction would result in a negative balance.');
+      transactions[index].type = oldType; 
+      balanceTotal = incomeTotal - expenseTotal;
+      updateAll();
+      return;
+    }
   }
 
   localStorage.setItem('transactions', JSON.stringify(transactions));
@@ -140,6 +151,7 @@ function updateTransaction(index) {
   let editInput = document.getElementById(`editAmount-${index}`);
   let newAmount = parseFloat(editInput.value);
 
+
   if (isNaN(newAmount) || newAmount <= 0) {
     alert('Amount must be a valid number and greater than zero.');
     editInput.value = parseFloat(transactions[index].amount).toFixed(2);
@@ -149,6 +161,7 @@ function updateTransaction(index) {
   let oldAmount = parseFloat(transactions[index].amount);
   let difference = newAmount - oldAmount;
 
+ 
   if (transactions[index].type === 'expense' && balanceTotal - difference < 0) {
     alert('Updating this amount would result in a negative balance. Operation cancelled.');
     editInput.value = oldAmount.toFixed(2);
@@ -159,7 +172,6 @@ function updateTransaction(index) {
   localStorage.setItem('transactions', JSON.stringify(transactions));
   updateAll();
 }
-
 
 function deleteTransaction(index) {
   let confirmDelete = confirm('Are you sure you want to delete this transaction? You have the option to edit.');
@@ -175,11 +187,11 @@ function deleteTransaction(index) {
   }
 }
 
-
 function deleteIncome(incomeIndex) {
   let incomeAmount = parseFloat(transactions[incomeIndex].amount);
   let newBalanceTotal = balanceTotal - incomeAmount;
 
+ 
   if (newBalanceTotal < 0) {
     let confirmDelete = confirm('Deleting this income transaction will clear all your expenses. Are you sure you want to proceed?');
     if (!confirmDelete) {
@@ -193,10 +205,8 @@ function deleteIncome(incomeIndex) {
     transactions = transactions.filter(transaction => transaction.type === 'income');
   }
 
-  localStorage.setItem('transactions', JSON.stringify(transactions));
   updateAll();
 }
-
 
 function updateAll() {
   let container = document.getElementById('allTransaction');
@@ -233,7 +243,6 @@ function updateAll() {
   localStorage.setItem('transactions', JSON.stringify(transactions));
 }
 
-
 function updateTotals() {
   incomeTotal = 0;
   expenseTotal = 0;
@@ -248,9 +257,22 @@ function updateTotals() {
 
   balanceTotal = incomeTotal - expenseTotal;
 
+  
+  if (balanceTotal < 0) {
+    transactions.forEach(transaction => {
+      transaction.amount = '0.00'; 
+    });
+    balanceTotal = 0;
+    incomeTotal = 0;
+    expenseTotal = 0;
+    alert('All transactions have been reset to zero to maintain a non-negative balance.');
+  }
+
   document.getElementById('incomeTotal').innerHTML = `R${incomeTotal.toFixed(2)}`;
   document.getElementById('expenseTotal').innerHTML = `R${expenseTotal.toFixed(2)}`;
   document.getElementById('balanceTotal').innerHTML = `R${balanceTotal.toFixed(2)}`;
+
+  localStorage.setItem('transactions', JSON.stringify(transactions));
 }
 
 document.addEventListener('DOMContentLoaded', function() {
