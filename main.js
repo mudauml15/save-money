@@ -63,6 +63,7 @@ function addTransaction() {
   document.getElementById('txtAmount').value = '';
 }
 
+
 function editAmount(index) {
   let editBox = document.getElementById(`amount-${index}`);
   let currentAmount = parseFloat(transactions[index].amount);
@@ -77,9 +78,11 @@ function editAmount(index) {
   document.getElementById(`editAmount-${index}`).focus();
 }
 
+
 function updateTransaction(index) {
   let editInput = document.getElementById(`editAmount-${index}`);
   let newAmount = parseFloat(editInput.value);
+
 
   if (isNaN(newAmount) || newAmount <= 0) {
     alert('Amount must be a valid number and greater than zero.');
@@ -102,6 +105,8 @@ function updateTransaction(index) {
   updateAll();
 }
 
+
+
 function deleteTransaction(index) {
   let confirmDelete = false;
 
@@ -117,6 +122,9 @@ function deleteTransaction(index) {
     }
   }
 }
+
+
+
 
 function deleteSalary(salaryIndex) {
   let confirmDelete = false;
