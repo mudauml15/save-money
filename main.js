@@ -94,10 +94,6 @@ function updateType(index, newType) {
   let oldAmount = parseFloat(transactions[index].amount);
   let detail = transactions[index].detail;
 
-  if (oldType === newType) {
-    return; // No change needed if the type remains the same
-  }
-
   if (oldType === 'income' && newType === 'expense') {
     if (incomeTotal - oldAmount < expenseTotal + oldAmount) {
       alert(`Insufficient funds to convert this transaction to expense. Current balance: R${balanceTotal.toFixed(2)}`);
@@ -116,8 +112,7 @@ function updateType(index, newType) {
     balanceTotal = incomeTotal - expenseTotal;
   }
 
-  // Check if there's an existing transaction with the same detail and different type
-  let existingTransaction = transactions.find((tran, idx) => idx !== index && tran.detail === detail && tran.type !== newType);
+  let existingTransaction = transactions.find((tran, index) => index !== index && tran.detail === detail && tran.type === newType);
 
   if (existingTransaction) {
     existingTransaction.amount = (parseFloat(existingTransaction.amount) + oldAmount).toFixed(2);
@@ -161,7 +156,7 @@ function updateTransaction(index) {
 }
 
 function deleteTransaction(index) {
-  let confirmDelete = confirm('Are you sure you want to delete this transaction? You have an option to edit.');
+  let confirmDelete = confirm('Are you sure you want to delete this transaction? You have the option to edit.');
 
   if (confirmDelete) {
     if (transactions[index].type === 'income') {
@@ -179,12 +174,11 @@ function deleteIncome(incomeIndex) {
   let newBalanceTotal = balanceTotal - incomeAmount;
 
   if (newBalanceTotal < 0) {
-    let confirmClear = confirm('Deleting this income transaction will clear all your expenses. Are you sure you want to proceed?');
-    if (!confirmClear) {
+    let confirmDelete = confirm('Deleting this income transaction will clear all your expenses. Are you sure you want to proceed?');
+    if (!confirmDelete) {
       return;
     }
-
-
+ 
     if (!confirmDelete) {
       return;
     }
