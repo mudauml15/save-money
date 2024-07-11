@@ -178,10 +178,6 @@ function deleteIncome(incomeIndex) {
     if (!confirmDelete) {
       return;
     }
- 
-    if (!confirmDelete) {
-      return;
-    }
   }
 
   transactions.splice(incomeIndex, 1);
