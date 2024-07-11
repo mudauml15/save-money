@@ -22,7 +22,7 @@ function addTransaction() {
     return;
   }
 
-  if (detail.toLowerCase() === 'salary' && type === 'expense') {
+  if (detail === 'salary' && type === 'expense') {
     alert('Salary cannot be marked as an expense.');
     return;
   }
@@ -89,10 +89,15 @@ function editType(index) {
   document.getElementById(`editType-${index}`).focus();
 }
 
+
 function updateType(index, newType) {
   let oldType = transactions[index].type;
   let oldAmount = parseFloat(transactions[index].amount);
   let detail = transactions[index].detail;
+
+  if (oldType === newType) {
+    return; 
+  }
 
   if (oldType === 'income' && newType === 'expense') {
     if (incomeTotal - oldAmount < expenseTotal + oldAmount) {
@@ -155,6 +160,7 @@ function updateTransaction(index) {
   updateAll();
 }
 
+
 function deleteTransaction(index) {
   let confirmDelete = confirm('Are you sure you want to delete this transaction? You have the option to edit.');
 
@@ -168,6 +174,7 @@ function deleteTransaction(index) {
     }
   }
 }
+
 
 function deleteIncome(incomeIndex) {
   let incomeAmount = parseFloat(transactions[incomeIndex].amount);
@@ -189,6 +196,7 @@ function deleteIncome(incomeIndex) {
   localStorage.setItem('transactions', JSON.stringify(transactions));
   updateAll();
 }
+
 
 function updateAll() {
   let container = document.getElementById('allTransaction');
@@ -224,6 +232,7 @@ function updateAll() {
   updateTotals();
   localStorage.setItem('transactions', JSON.stringify(transactions));
 }
+
 
 function updateTotals() {
   incomeTotal = 0;
