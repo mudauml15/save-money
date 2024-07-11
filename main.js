@@ -6,7 +6,7 @@ let expenseTotal = 0;
 function addTransaction() {
   let detail = document.getElementById('txtDetail').value.trim();
   let amount = parseFloat(document.getElementById('txtAmount').value);
-  let type = document.getElementById('txtType').value;
+  let type = document.getElementById('txtType').value.toLowerCase();
 
   if (detail) {
     detail = `${detail[0].toUpperCase()}${detail.slice(1).toLowerCase()}`;
@@ -35,14 +35,12 @@ function addTransaction() {
   if (type === 'expense') {
     let remainingAmount = incomeTotal - expenseTotal;
     let neededAmount = amount - remainingAmount;
-  
+
     if (amount > remainingAmount) {
-      alert(`Insufficient funds. You have R${remainingAmount.toFixed(2)} left, 
-      and you need an additional R${neededAmount.toFixed(2)} to add your expense.`);
+      alert(`Insufficient funds. You have R${remainingAmount.toFixed(2)} left, you need an additional R${neededAmount.toFixed(2)} to add your expense.`);
       return;
     }
   }
-  
 
   let existingTransaction = transactions.find(tran => tran.detail === detail && tran.type === type);
 
@@ -61,13 +59,13 @@ function addTransaction() {
   updateAll();
   document.getElementById('txtDetail').value = '';
   document.getElementById('txtAmount').value = '';
+  document.getElementById('txtType').value = 'income';
 }
-
 
 function editAmount(index) {
   let editBox = document.getElementById(`amount-${index}`);
   let currentAmount = parseFloat(transactions[index].amount);
-  
+
   editBox.innerHTML = `
     <input type="number" id="editAmount-${index}" 
            value="${currentAmount.toFixed(2)}"
@@ -78,15 +76,61 @@ function editAmount(index) {
   document.getElementById(`editAmount-${index}`).focus();
 }
 
+function editType(index) {
+  let editBox = document.getElementById(`type-${index}`);
+  let currentType = transactions[index].type;
+
+  editBox.innerHTML = `
+    <input type="text" id="editType-${index}" 
+           value="${currentType}"
+           style="width: 100px;"
+           onblur="updateType(${index}, this.value)">
+  `;
+
+  document.getElementById(`editType-${index}`).focus();
+}
+
+function updateType(index, newType) {
+  let oldType = transactions[index].type;
+  let oldAmount = parseFloat(transactions[index].amount);
+
+
+  if (oldType === 'income' && newType === 'expense') {
+    if (incomeTotal - oldAmount < expenseTotal + oldAmount) {
+      alert(`Insufficient funds to convert this transaction to expense. Current balance: R${balanceTotal.toFixed(2)}`);
+      return;
+    }
+
+    transactions[index].type = 'expense';
+    incomeTotal -= oldAmount;
+    expenseTotal += oldAmount;
+    balanceTotal = incomeTotal - expenseTotal;
+
+  } else if (oldType === 'expense' && newType === 'income') {
+    transactions[index].type = 'income';
+    incomeTotal += oldAmount;
+    expenseTotal -= oldAmount;
+    balanceTotal = incomeTotal - expenseTotal;
+  }
+
+  if (balanceTotal < 0) {
+    alert('Changing this transaction type would result in a negative balance. Operation cancelled.');
+    transactions[index].type = oldType;
+    balanceTotal = incomeTotal - expenseTotal;
+    updateAll();
+    return;
+  }
+
+  localStorage.setItem('transactions', JSON.stringify(transactions));
+  updateAll();
+}
 
 function updateTransaction(index) {
   let editInput = document.getElementById(`editAmount-${index}`);
   let newAmount = parseFloat(editInput.value);
 
-
   if (isNaN(newAmount) || newAmount <= 0) {
     alert('Amount must be a valid number and greater than zero.');
-
     editInput.value = parseFloat(transactions[index].amount).toFixed(2);
     return;
   }
@@ -105,17 +149,13 @@ function updateTransaction(index) {
   updateAll();
 }
 
-
-
 function deleteTransaction(index) {
-  let confirmDelete = false;
+  let confirmDelete = confirm('Are you sure you want to delete this transaction?');
 
-  if (transactions[index].detail.toLowerCase() === 'salary') {
-    deleteSalary(index); 
-  } else {
-    confirmDelete = confirm('Are you sure you want to delete this transaction?');
-    
-    if (confirmDelete) {
+  if (confirmDelete) {
+    if (transactions[index].type === 'income') {
+      deleteIncome(index);
+    } else {
       transactions.splice(index, 1);
       localStorage.setItem('transactions', JSON.stringify(transactions));
       updateAll();
@@ -123,32 +163,31 @@ function deleteTransaction(index) {
   }
 }
 
+function deleteIncome(incomeIndex) {
+  let incomeAmount = parseFloat(transactions[incomeIndex].amount);
+  let newBalanceTotal = balanceTotal - incomeAmount;
 
-
-
-function deleteSalary(salaryIndex) {
-  let confirmDelete = false;
-
-  
-  if (expenseTotal > 0) {
-  
-    confirmDelete = confirm('Deleting salary will clear all expenses. Are you sure you want to delete?');
+  if (newBalanceTotal < 0) {
+    let confirmClear = confirm('Deleting this income transaction will clear all your expenses. Are you sure you want to proceed?');
+    if (!confirmClear) {
+      return;
+    }
   } else {
-   
-    confirmDelete = confirm('Are you sure you want to delete the salary transaction?');
+    let confirmDelete = confirm('Are you sure you want to delete this transaction? You have the option to edit.');
+
+    if (!confirmDelete) {
+      return;
+    }
   }
 
-  if (confirmDelete) {
-  
-    transactions.splice(salaryIndex, 1);
+  transactions.splice(incomeIndex, 1);
 
-  
+  if (newBalanceTotal < 0) {
     transactions = transactions.filter(transaction => transaction.type === 'income');
-
- 
-    localStorage.setItem('transactions', JSON.stringify(transactions));
-    updateAll();
   }
+
+  localStorage.setItem('transactions', JSON.stringify(transactions));
+  updateAll();
 }
 
 function updateAll() {
@@ -171,7 +210,12 @@ function updateAll() {
         <span style="font-size: 10px; color: #999;">Edit amount</span><br>
         R${transaction.amount}
       </div>
-      <div class="action"><i class="bi bi-trash" onclick="deleteTransaction(${index})"></i></div>
+      
+      <div class="type" id="type-${index}" onclick="editType(${index})">
+        <span style="font-size: 10px; color: #999;">Edit type</span><br>
+        ${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+      </div>
+      <div class="action"><i class="bi bi-trash" onclick="deleteTransaction(${index});"></i></div>
     `;
 
     container.appendChild(transactionDiv);
@@ -180,7 +224,6 @@ function updateAll() {
   updateTotals();
   localStorage.setItem('transactions', JSON.stringify(transactions));
 }
-
 
 function updateTotals() {
   incomeTotal = 0;
@@ -194,9 +237,10 @@ function updateTotals() {
     }
   });
 
+  balanceTotal = incomeTotal - expenseTotal;
+
   document.getElementById('incomeTotal').innerHTML = `R${incomeTotal.toFixed(2)}`;
   document.getElementById('expenseTotal').innerHTML = `R${expenseTotal.toFixed(2)}`;
-  balanceTotal = incomeTotal - expenseTotal;
   document.getElementById('balanceTotal').innerHTML = `R${balanceTotal.toFixed(2)}`;
 }
 
