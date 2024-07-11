@@ -13,7 +13,7 @@ function addTransaction() {
   }
 
   if (detail === '') {
-    alert('Detail is required.');
+    alert('Details are required.');
     return;
   }
 
@@ -46,7 +46,6 @@ function addTransaction() {
 
   if (existingTransaction) {
     existingTransaction.amount = (parseFloat(existingTransaction.amount) + amount).toFixed(2);
-
   } else {
     let transaction = {
       detail: detail,
@@ -93,7 +92,11 @@ function editType(index) {
 function updateType(index, newType) {
   let oldType = transactions[index].type;
   let oldAmount = parseFloat(transactions[index].amount);
+  let detail = transactions[index].detail;
 
+  if (oldType === newType) {
+    return; // No change needed if the type remains the same
+  }
 
   if (oldType === 'income' && newType === 'expense') {
     if (incomeTotal - oldAmount < expenseTotal + oldAmount) {
@@ -111,6 +114,14 @@ function updateType(index, newType) {
     incomeTotal += oldAmount;
     expenseTotal -= oldAmount;
     balanceTotal = incomeTotal - expenseTotal;
+  }
+
+  // Check if there's an existing transaction with the same detail and different type
+  let existingTransaction = transactions.find((tran, idx) => idx !== index && tran.detail === detail && tran.type !== newType);
+
+  if (existingTransaction) {
+    existingTransaction.amount = (parseFloat(existingTransaction.amount) + oldAmount).toFixed(2);
+    transactions.splice(index, 1);
   }
 
   if (balanceTotal < 0) {
@@ -150,7 +161,7 @@ function updateTransaction(index) {
 }
 
 function deleteTransaction(index) {
-  let confirmDelete = confirm('Are you sure you want to delete this transaction?');
+  let confirmDelete = confirm('Are you sure you want to delete this transaction? You have an option to edit.');
 
   if (confirmDelete) {
     if (transactions[index].type === 'income') {
@@ -172,8 +183,7 @@ function deleteIncome(incomeIndex) {
     if (!confirmClear) {
       return;
     }
-  } else {
-    let confirmDelete = confirm('Are you sure you want to delete this transaction? You have the option to edit.');
+
 
     if (!confirmDelete) {
       return;
